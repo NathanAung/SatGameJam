@@ -15,6 +15,9 @@ public class Player : MonoBehaviour
     Vector2 minBounds = new Vector2(-8.5f, -4.4f);
     Vector2 maxBounds = new Vector2(-3.6f, 4.4f);
 
+    float shootInterval = 0.2f;
+    float prevTime = 0f;
+
 
 
     // Start is called before the first frame update
@@ -43,10 +46,24 @@ public class Player : MonoBehaviour
         }
 
         // shoot
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space) && Time.time - prevTime > shootInterval)
         {
             GameObject bullet = Instantiate(playerBullet, shootPos.position, Quaternion.identity);
             bullet.GetComponent<Bullet>().ActivateBullet(0);
+
+            prevTime = Time.time;
+        }
+    }
+
+    public void ReceiveDamage(int dmg)
+    {
+        hp -= dmg;
+        Debug.Log("Player took damage, HP: " + hp);
+
+        if (hp <= 0)
+        {
+            Debug.Log("Game Over");
+            Destroy(this.gameObject);
         }
     }
 }
