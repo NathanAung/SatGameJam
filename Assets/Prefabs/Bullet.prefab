@@ -130,7 +130,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfd75ebca289bdf40af70fba05979e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  setDir: 0
   moveDir: {x: 0, y: 0}
+  moveSpeed: 10
+  damage: 1
   bulletActive: 0
 --- !u!58 &8396414933538938920
 CircleCollider2D:
@@ -147,7 +150,7 @@ CircleCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 247
+    m_Bits: 375
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2

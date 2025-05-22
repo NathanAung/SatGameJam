@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public bool spawning = true;
+    public bool spawning = false;
     public int activeEnemies = 0;
     int maxEnemies = 15;
     [SerializeField] List<GameObject> enemies;
     [SerializeField] Transform spawnPosUp;
     [SerializeField] Transform spawnPosDown;
+    [SerializeField] Transform spawnPosRightUp;
+    [SerializeField] Transform spawnPosRightDown;
     float spawnTime = 2f;
-    float minSpawnTime = 0.5f;
-    float maxSpawnTime = 3f;
+    float minSpawnTime = 0.1f;
+    float maxSpawnTime = 2f;
     float spawnTimer = 0f;
 
     // Start is called before the first frame update
@@ -43,17 +45,38 @@ public class EnemySpawner : MonoBehaviour
         if (activeEnemies >= maxEnemies) return;
 
         GameObject enemy;
-        if(Random.Range(0,2) == 0)
+        int e = Random.Range(0, enemies.Count);
+
+        switch (e)
         {
-            enemy = Instantiate(enemies[Random.Range(0, enemies.Count)], spawnPosUp.position, Quaternion.identity);
-            enemy.GetComponent<Enemy>().moveDir = Vector2.down;
+            case 0:
+                if (Random.Range(0, 2) == 0)
+                {
+                    enemy = Instantiate(enemies[e], spawnPosUp.position, Quaternion.identity);
+                    enemy.GetComponent<Enemy>().moveDir = Vector2.down;
+                }
+                else
+                {
+                    enemy = Instantiate(enemies[e], spawnPosDown.position, Quaternion.identity);
+                    enemy.GetComponent<Enemy>().moveDir = Vector2.up;
+                }
+                enemy.GetComponent<Enemy>().spawner = this;
+
+                break;
+            case 1:
+                if (Random.Range(0, 2) == 0)
+                {
+                    enemy = Instantiate(enemies[e], spawnPosRightUp.position, Quaternion.identity);
+                    
+                }
+                else
+                {
+                    enemy = Instantiate(enemies[e], spawnPosRightDown.position, Quaternion.identity);
+                }
+                enemy.GetComponent<Enemy>().moveDir = Vector2.left;
+                enemy.GetComponent<Enemy>().spawner = this;
+                break;
         }
-        else
-        {
-            enemy = Instantiate(enemies[Random.Range(0, enemies.Count)], spawnPosDown.position, Quaternion.identity);
-            enemy.GetComponent<Enemy>().moveDir = Vector2.up;
-        }
-        enemy.GetComponent<Enemy>().spawner = this;
         activeEnemies += 1;
     }
 }

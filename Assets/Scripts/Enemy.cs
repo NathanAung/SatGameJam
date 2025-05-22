@@ -4,20 +4,21 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] GameObject enemyBullet;
-    [SerializeField] Transform shootPos;
+    [SerializeField] protected GameObject enemyBullet;
+    [SerializeField] protected Transform shootPos;
     public EnemySpawner spawner;
-    float minY = -4.4f;
-    float maxY = 4.4f;
+    protected float minY = -4.4f;
+    protected float maxY = 4.4f;
     public int enemyType = 0;
 
     [SerializeField] protected int maxHP = 1;
     protected int hp = 1;
+    [SerializeField] protected int score = 10;
 
-    float shootTime = 1f;
-    float shootTimer = 0f;
+    [SerializeField] protected float shootTime = 1f;
+    protected float shootTimer = 0f;
 
-    float moveSpeed = 4f;
+    [SerializeField] protected float moveSpeed = 7f;
     public Vector2 moveDir = Vector2.zero;
 
 
@@ -32,16 +33,7 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 move = (Vector3)moveDir.normalized * moveSpeed * Time.deltaTime;
-        transform.position += move;
-        if(moveDir == Vector2.up && transform.position.y >= maxY)
-        {
-            moveDir = Vector2.down;
-        }
-        else if (moveDir == Vector2.down && transform.position.y <= minY)
-        {
-            moveDir = Vector2.up;
-        }
+        Move();
 
         if (shootTimer < shootTime)
         {
@@ -58,17 +50,32 @@ public class Enemy : MonoBehaviour
     public void ReceiveDamage(int dmg)
     {
         hp -= dmg;
-        if(hp <= 0)
+        if (hp <= 0)
         {
             Debug.Log("Enemy dead");
             spawner.activeEnemies -= 1;
+            GameManager.UpdateScore(score);
             Destroy(this.gameObject);
         }
     }
 
-    protected void Shoot()
+    protected virtual void Shoot()
     {
         GameObject bullet = Instantiate(enemyBullet, shootPos.position, Quaternion.identity);
-        bullet.GetComponent<Bullet>().ActivateBullet(1);
+        bullet.GetComponent<Bullet>().ActivateBullet(1, Vector2.zero);
+    }
+
+    protected virtual void Move()
+    {
+        Vector3 move = (Vector3)moveDir.normalized * moveSpeed * Time.deltaTime;
+        transform.position += move;
+        if (moveDir == Vector2.up && transform.position.y >= maxY)
+        {
+            moveDir = Vector2.down;
+        }
+        else if (moveDir == Vector2.down && transform.position.y <= minY)
+        {
+            moveDir = Vector2.up;
+        }
     }
 }

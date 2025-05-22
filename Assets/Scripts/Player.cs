@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     [SerializeField] GameObject playerBullet;
     [SerializeField] Transform shootPos;
-    int maxHP = 10;
-    int hp = 10;
+    [SerializeField] TextMeshProUGUI hpText;
+    [SerializeField] GameManager gameManager;
+    int maxHP = 5;
+    int hp = 5;
 
     float moveSpeed = 7f;
     Vector2 moveDir = Vector2.zero;
@@ -18,6 +21,8 @@ public class Player : MonoBehaviour
     float shootInterval = 0.2f;
     float prevTime = 0f;
 
+    public bool playerActive = false;
+    private bool firstSpace = true;
 
 
     // Start is called before the first frame update
@@ -29,6 +34,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!playerActive) return;
+
         moveDir.x = Input.GetAxisRaw("Horizontal");
         moveDir.y = Input.GetAxisRaw("Vertical");
         if (moveDir.x != 0 || moveDir.y != 0)
@@ -48,22 +55,36 @@ public class Player : MonoBehaviour
         // shoot
         if (Input.GetKey(KeyCode.Space) && Time.time - prevTime > shootInterval)
         {
-            GameObject bullet = Instantiate(playerBullet, shootPos.position, Quaternion.identity);
-            bullet.GetComponent<Bullet>().ActivateBullet(0);
+            if (!firstSpace)
+            {
+                GameObject bullet = Instantiate(playerBullet, shootPos.position, Quaternion.identity);
+                bullet.GetComponent<Bullet>().ActivateBullet(0, Vector2.zero);
 
-            prevTime = Time.time;
+                prevTime = Time.time;
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.Space) && firstSpace)
+        {
+            firstSpace = false;
         }
     }
 
     public void ReceiveDamage(int dmg)
     {
-        hp -= dmg;
+        hp = Mathf.Max(0, hp - dmg);
         Debug.Log("Player took damage, HP: " + hp);
+        UpdateHP();
 
         if (hp <= 0)
         {
+            gameManager.GameOver();
             Debug.Log("Game Over");
             Destroy(this.gameObject);
         }
+    }
+
+    private void UpdateHP()
+    {
+        hpText.text = "HP: " + hp;
     }
 }

@@ -5,14 +5,16 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     // movement boundary
-    Vector2 minBounds = new Vector2(-10f, -6f);
-    Vector2 maxBounds = new Vector2(10f, 6f);
+    protected Vector2 minBounds = new Vector2(-10f, -6f);
+    protected Vector2 maxBounds = new Vector2(10f, 6f);
 
+    [SerializeField] protected bool setDir = false;
     public Vector2 moveDir = Vector2.zero;
-    float moveSpeed = 5f;
-    int damage = 1;
+    [SerializeField] protected float moveSpeed = 5f;
+    [SerializeField] protected int damage = 1;
     public bool bulletActive = false;
-    int bulletType;
+    protected int bulletType;
+
 
     // Start is called before the first frame update
     void Start()
@@ -36,7 +38,7 @@ public class Bullet : MonoBehaviour
         
     }
 
-    public void ActivateBullet(int type)
+    public void ActivateBullet(int type, Vector2 dir)
     {
         bulletType = type;
         switch (bulletType)
@@ -44,21 +46,21 @@ public class Bullet : MonoBehaviour
             // player bullet
             case 0:
                 moveDir = Vector2.right;
-                moveSpeed = 10f;
-                GetComponent<CircleCollider2D>().excludeLayers = LayerMask.GetMask("Player", "Bullet");
                 break;
             // enemy bullet 1
             case 1:
                 moveDir = Vector2.left;
-                moveSpeed = 7f;
-                GetComponent<CircleCollider2D>().excludeLayers = LayerMask.GetMask("Enemy", "Bullet");
+                break;
+            // enemy bullet 2
+            case 2:
+                moveDir = dir;
                 break;
         }
         bulletActive = true;
     }
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    protected void OnTriggerEnter2D(Collider2D collision)
     {
         if (!bulletActive) return;
 
@@ -68,7 +70,7 @@ public class Bullet : MonoBehaviour
             Destroy(this.gameObject);
 
         }
-        if (bulletType == 1 && collision.gameObject.tag == "Player")
+        if (bulletType > 0 && collision.gameObject.tag == "Player")
         {
             collision.gameObject.GetComponent<Player>().ReceiveDamage(damage);
             Destroy(this.gameObject);
@@ -77,7 +79,7 @@ public class Bullet : MonoBehaviour
 
     }
 
-    private bool OutOfBounds()
+    protected bool OutOfBounds()
     {
         if (transform.position.x > maxBounds.x || transform.position.x < minBounds.x || transform.position.y > maxBounds.y || transform.position.y < minBounds.y)
             return true;

@@ -50,8 +50,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyBullet: {fileID: 311143801319886518, guid: ef351408f3137784daca77e04956d562, type: 3}
   shootPos: {fileID: 3171346607952138210}
+  spawner: {fileID: 0}
   enemyType: 0
   maxHP: 1
+  shootTime: 2
+  moveDir: {x: 0, y: 0}
 --- !u!58 &5437800705528159750
 CircleCollider2D:
   m_ObjectHideFlags: 0
