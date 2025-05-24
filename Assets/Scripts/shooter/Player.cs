@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+
     [SerializeField] GameObject playerBullet;
     [SerializeField] Transform shootPos;
     [SerializeField] TextMeshProUGUI hpText;
