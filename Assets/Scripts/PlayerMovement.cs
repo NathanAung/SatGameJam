@@ -25,13 +25,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] bool grounded = false;
     [SerializeField] bool hitGround = false;
 
+    // ATTACKS
     private bool isAttacking = false;
     private bool canAttack = true;
-    private float attackWindow = 1f;
+    private bool canCombo = false;
+    private float comboWindow = 1f;
+    private float comboTimer = 0f;
     private int currentAttack = 0;
     private int lastAttack = 0;
     private int maxAttack = 0;
     private float hitboxActiveTime = 0.2f;
+    private float hitboxActiveTimer = 0f;
     [SerializeField] GameObject[] hitboxes;
 
 
@@ -40,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
+        maxAttack = hitboxes.Length;
     }
 
     // Update is called once per frame
@@ -52,6 +57,22 @@ public class PlayerMovement : MonoBehaviour
             hitGround = true;
             if (!canJump) canJump = true;
         }
+
+        if (canCombo) {
+            if (comboTimer < comboWindow)
+            {
+                comboTimer += Time.deltaTime;
+            }
+            else
+            {
+                comboTimer = 0f;
+                currentAttack = 0;
+                canCombo = false;
+                Debug.Log("Combo timeout");
+            }
+        }
+
+        
 
         PlayerInput();
     }
@@ -81,10 +102,10 @@ public class PlayerMovement : MonoBehaviour
             Jump();
         }
 
-        if(Input.GetButtonDown("Fire1") && canAttack)
+        if (Input.GetButtonDown("Fire1") && canAttack)
         {
             Attack();
-            
+
         }
     }
 
@@ -94,6 +115,7 @@ public class PlayerMovement : MonoBehaviour
         if (horizontalInput != 0)
         {
             moveDirection.x = horizontalInput;
+            transform.localScale = new Vector3(horizontalInput, 1, 1);
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f);
         }
     }
@@ -128,25 +150,45 @@ public class PlayerMovement : MonoBehaviour
     private void Attack()
     {
         EnableAttack();
-        Debug.Log(currentAttack);
+        
         canAttack = false;
     }
 
 
-    private void EnableAttack()
-    {
-        hitboxes[currentAttack].SetActive(false);
-        currentAttack += 1;
-        if (currentAttack > maxAttack) currentAttack = 0;
+    private void EnableAttack(){
+        if (hitboxes[lastAttack].activeSelf){
+            hitboxes[lastAttack].SetActive(false);
+            
+        }
+
         hitboxes[currentAttack].SetActive(true);
+        Debug.Log(currentAttack);
+        canCombo = true;
+        comboTimer = 0f;
+        lastAttack = currentAttack;
+        currentAttack += 1;
+        if (currentAttack >= maxAttack){
+            currentAttack = 0;
+            canCombo = false;
+        }
+
         Invoke(nameof(DisableAttack), hitboxActiveTime);
+        //Invoke(nameof(ComboTimeout), comboWindow);
 
     }
 
 
     private void DisableAttack()
     {
-        hitboxes[currentAttack].SetActive(false);
+        hitboxes[lastAttack].SetActive(false);
         canAttack = true;
+        Debug.Log("disabled");
+    }
+
+    private void ComboTimeout()
+    {
+        canCombo = false;
+        currentAttack = 0;
+        Debug.Log("combo timeout");
     }
 }

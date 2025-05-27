@@ -16,10 +16,10 @@ TagManager:
   - Enemy
   - Bullet
   - Ground
-  - PlayerHitBox
-  - 
-  - 
-  - 
+  - PlayerHitbox
+  - PlayerHurtbox
+  - EnemyHitbox
+  - EnemyHurtbox
   - 
   - 
   - 
