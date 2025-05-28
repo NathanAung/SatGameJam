@@ -1,0 +1,9 @@
+# Top-most EditorConfig file
+root = true
+
+[*.cs]
+# Use same line for all braces (methods, classes, properties, etc.)
+csharp_new_line_before_open_brace = none
+
+# Optional: Enable formatting on save in VS Code settings.json
+# (You might already have this)
