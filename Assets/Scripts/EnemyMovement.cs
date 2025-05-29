@@ -1,19 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class EnemyMovement : Character {
 
+    [SerializeField] protected int score = 100;
     // movement
     private float moveSpeed = 0f;
     [SerializeField] float moveSpeedDefault = 1f;
     private Vector2 moveDirection = Vector2.right;
-    private int facingDir = 1;
     public LayerMask groundLayer;
     [SerializeField] bool grounded = false;
     [SerializeField] bool hitGround = false;
     private float height = 2f;
     bool notOnEdge = false;
+    bool wallCheck = false;
     [SerializeField] Transform edgeCheckPos;
 
     // attack
@@ -22,7 +24,7 @@ public class EnemyMovement : Character {
     private bool playerInRange = false;
     [SerializeField] private float attackCD = 2f;
     private float attackTimer = 0f;
-    [SerializeField] Collider2D hitbox;
+    [SerializeField] GameObject hitbox;
     private float hitboxActiveTime = 0.2f;
 
 
@@ -36,6 +38,7 @@ public class EnemyMovement : Character {
     void Update() {
         grounded = Physics2D.Raycast(transform.position, Vector2.down, height * 0.7f, groundLayer);
         notOnEdge = Physics2D.Raycast(edgeCheckPos.position, Vector2.down, height * 0.7f, groundLayer);
+        wallCheck = Physics2D.Raycast(transform.position, moveDirection, 1f, groundLayer);
         playerInRange = Physics2D.Raycast(transform.position, moveDirection, 1f, playerLayer);
 
         if (playerInRange) {
@@ -57,7 +60,7 @@ public class EnemyMovement : Character {
     }
 
     private void Move() {
-        if (grounded && !notOnEdge) {
+        if ((grounded && !notOnEdge) || (grounded && wallCheck)) {
             if (moveDirection == Vector2.left) moveDirection = Vector2.right;
             else moveDirection = Vector2.left;
         }
@@ -67,6 +70,8 @@ public class EnemyMovement : Character {
     }
 
     private void SpeedControl() {
+        if (wasHit) return;
+
         Vector2 flatVel = new Vector2(rb.velocity.x, 0f);
         if (flatVel.magnitude > moveSpeed) {
             Vector2 limitedVel = flatVel.normalized * moveSpeed;
@@ -76,13 +81,24 @@ public class EnemyMovement : Character {
 
     private void Attack() {
         Debug.Log("Enemy Attacking");
-        hitbox.enabled = true;
+        hitbox.GetComponent<Collider2D>().enabled = true;
+        hitbox.GetComponent<SpriteRenderer>().enabled = true;
         Invoke(nameof(DisableAttack), hitboxActiveTime);
     }
 
     private void DisableAttack() {
-        hitbox.enabled = false;
+        hitbox.GetComponent<Collider2D>().enabled = false;
+        hitbox.GetComponent<SpriteRenderer>().enabled = false;
     }
 
 
+    public override void ReceiveDamage(int dmg, Vector2 knockback) {
+        base.ReceiveDamage(dmg, knockback);
+        Debug.Log(knockback);
+        if (hp <= 0) {
+            GameManager.UpdateScore(score);
+            Debug.Log("Enemy dead");
+            Destroy(this.gameObject);
+        }
+    }
 }

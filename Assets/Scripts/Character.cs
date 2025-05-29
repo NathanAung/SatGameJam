@@ -6,7 +6,7 @@ public class Character : MonoBehaviour {
     protected Rigidbody2D rb;
     public int hp = 3;
     [SerializeField] protected int maxHp = 3;
-    protected bool wasHit = false;
+    [SerializeField] protected bool wasHit = false;
     protected float resetHitTime = 0.5f;
 
     protected bool canMove = true;
@@ -15,6 +15,7 @@ public class Character : MonoBehaviour {
     // Start is called before the first frame update
     protected virtual void Start() {
         rb = GetComponent<Rigidbody2D>();
+        hp = maxHp;
     }
 
     // Update is called once per frame
@@ -26,10 +27,6 @@ public class Character : MonoBehaviour {
     public virtual void ReceiveDamage(int dmg, Vector2 knockback) {
         hp = Mathf.Max(0, hp - dmg);
         rb.velocity = knockback;
-        Debug.Log(knockback);
-        if (hp <= 0) {
-            Debug.Log("Game Over");
-        }
         wasHit = true;
         Invoke(nameof(ResetHit), resetHitTime);
     }

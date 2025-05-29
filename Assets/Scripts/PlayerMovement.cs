@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : Character {
 
+    [SerializeField] GameManager gameManager;
+    [SerializeField] TextMeshProUGUI hpText;
+    public bool playerActive = false;
     [SerializeField] private float moveSpeed = 0f;
     [SerializeField] float moveSpeedDefault = 10f;
-    [SerializeField] float moveSpeedDash = 100f;
     private float horizontalInput;
     private float verticalInput;
     private Vector2 moveDirection;
@@ -15,13 +18,12 @@ public class PlayerMovement : Character {
     [SerializeField] float jumpCooldown = 0.25f;
     [SerializeField] float airMultiplier = 0.4f;
     private bool canJump = true;
-
-    private bool isDashing = false;
-
     public float playerHeight = 2f;
     public LayerMask groundLayer;
     [SerializeField] bool grounded = false;
     [SerializeField] bool hitGround = false;
+    [SerializeField] bool wallCheck = false;
+
 
     // ATTACKS
     private bool isAttacking = false;
@@ -35,17 +37,22 @@ public class PlayerMovement : Character {
     private float hitboxActiveTime = 0.2f;
     private float hitboxActiveTimer = 0f;
     [SerializeField] GameObject[] hitboxes;
+    private bool firstSpace = true;
 
 
     // Start is called before the first frame update
     protected override void Start() {
         base.Start();
         maxAttack = hitboxes.Length;
+        hpText.text = "HP: " + hp;
     }
 
     // Update is called once per frame
     void Update() {
+        if (!playerActive) return;
+
         grounded = Physics2D.Raycast(transform.position, Vector2.down, playerHeight * 0.7f, groundLayer);
+        wallCheck = (Physics2D.Raycast(transform.position + new Vector3(0, 0.5f), moveDirection, 0.7f, groundLayer) || Physics2D.Raycast(transform.position + new Vector3(0, -0.7f), moveDirection, 0.7f, groundLayer));
 
         if (grounded && !hitGround && canJump) {
             hitGround = true;
@@ -71,22 +78,29 @@ public class PlayerMovement : Character {
 
 
     private void FixedUpdate() {
-        if (!isDashing) {
+        if (playerActive) {
             Move();
-            SpeedControl();
+
         }
+        else {
+            rb.velocity = Vector2.zero;
+        }
+        SpeedControl();
     }
 
 
     private void PlayerInput() {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         //verticalInput = Input.GetAxisRaw("Vertical");
-        if (!isDashing) {
-            moveSpeed = (horizontalInput != 0 || verticalInput != 0) ? moveSpeedDefault : 0f;
-        }
+
+        moveSpeed = (horizontalInput != 0 || verticalInput != 0) ? moveSpeedDefault : 0f;
 
         if (Input.GetKeyDown(KeyCode.Space) && canJump && grounded) {
-            Jump();
+            if (!firstSpace)
+                Jump();
+        }
+        if (Input.GetKeyUp(KeyCode.Space) && firstSpace) {
+            firstSpace = false;
         }
 
         if (Input.GetButtonDown("Fire1") && canAttack) {
@@ -100,7 +114,8 @@ public class PlayerMovement : Character {
         if (horizontalInput != 0) {
             moveDirection.x = horizontalInput;
             transform.localScale = new Vector3(horizontalInput, 1, 1);
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f);
+            if (!wallCheck)
+                rb.AddForce(moveDirection.normalized * moveSpeed * 10f);
         }
 
     }
@@ -130,21 +145,14 @@ public class PlayerMovement : Character {
         }
     }
 
+
     private void Attack() {
-        EnableAttack();
-
-        canAttack = false;
-    }
-
-
-    private void EnableAttack() {
-        if (hitboxes[lastAttack].activeSelf) {
-            hitboxes[lastAttack].SetActive(false);
-
+        if (CheckAttackActive(lastAttack)) {
+            SetAttack(lastAttack, false);
         }
 
-        hitboxes[currentAttack].SetActive(true);
-        Debug.Log(currentAttack);
+        SetAttack(currentAttack, true);
+        //Debug.Log(currentAttack);
         canCombo = true;
         comboTimer = 0f;
         lastAttack = currentAttack;
@@ -157,18 +165,53 @@ public class PlayerMovement : Character {
         Invoke(nameof(DisableAttack), hitboxActiveTime);
         //Invoke(nameof(ComboTimeout), comboWindow);
 
+        canAttack = false;
+    }
+
+
+    private void SetAttack(int attackNo, bool activate) {
+        hitboxes[attackNo].GetComponent<Collider2D>().enabled = activate;
+        hitboxes[attackNo].GetComponent<SpriteRenderer>().enabled = activate;
+    }
+
+
+    private bool CheckAttackActive(int attackNo) {
+        if (hitboxes[attackNo].GetComponent<Collider2D>().enabled)
+            return true;
+        else
+            return false;
     }
 
 
     private void DisableAttack() {
-        hitboxes[lastAttack].SetActive(false);
+        SetAttack(lastAttack, false);
         canAttack = true;
-        Debug.Log("disabled");
+        //Debug.Log("disabled");
     }
+
 
     private void ComboTimeout() {
         canCombo = false;
         currentAttack = 0;
         Debug.Log("combo timeout");
+    }
+
+
+    public override void ReceiveDamage(int dmg, Vector2 knockback) {
+        base.ReceiveDamage(dmg, knockback);
+        hpText.text = "HP: " + hp;
+        if (hp <= 0) {
+            Debug.Log("Game Over");
+            gameManager.GameOver();
+            GetComponent<SpriteRenderer>().enabled = false;
+            DisableCollision();
+            playerActive = false;
+        }
+    }
+
+    public void DisableCollision() {
+        GetComponent<Collider2D>().enabled = false;
+        transform.GetChild(3).gameObject.SetActive(false);
+        rb.isKinematic = true;
     }
 }
