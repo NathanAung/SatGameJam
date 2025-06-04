@@ -30,7 +30,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 711351478605034434, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 711351478605034434, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -66,11 +66,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: hp
-      value: 50
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: money
-      value: 50
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: score
@@ -79,6 +79,10 @@ PrefabInstance:
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: speed
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7562541932665886343, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
+      propertyPath: m_Radius
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7817709470512825646, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: m_Name

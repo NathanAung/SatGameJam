@@ -52,11 +52,11 @@ MonoBehaviour:
   price: 5
   turretPlaced: 0
   turretLevel: 0
-  turretDamages: 01000000020000000300000004000000
+  turretDamages: 01000000020000000200000003000000
   turretCDs:
   - 1
-  - 0.6
-  - 0.3
+  - 1
+  - 0.5
   - 0.2
 --- !u!1 &2865048631384107363
 GameObject:

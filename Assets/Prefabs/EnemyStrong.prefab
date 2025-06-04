@@ -66,7 +66,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: hp
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: money
@@ -78,7 +78,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: speed
-      value: 3.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7817709470512825646, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: m_Name

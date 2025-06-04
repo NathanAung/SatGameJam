@@ -53,6 +53,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
+      propertyPath: hp
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4358321356402084410, guid: 83bf5d90740f5b647823110f9760645d, type: 3}
       propertyPath: money
       value: 2
       objectReference: {fileID: 0}

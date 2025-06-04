@@ -1,10 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
+    [SerializeField] GameObject startText;
+    [SerializeField] GameObject gameOverText;
+    [SerializeField] GameObject gameClearText;
+    [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] TextMeshProUGUI moneyText;
+    [SerializeField] GameObject explosionPrefab;
+    [SerializeField] EnemySpawner spawner;
     public int[] turretPrices;
     public int[] upgradePrices;
     public int money = 1;
@@ -42,13 +50,17 @@ public class GameManager : MonoBehaviour {
                 }
             }
             else {
-                // reload scene if won or lost
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                if (Input.GetKeyDown(KeyCode.Space)) {
+                    // reload scene if won or lost
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                }
             }
         }
         else {
             if (Input.GetKeyDown(KeyCode.Space)) {
+                startText.SetActive(false);
                 gameStarted = true;
+                spawner.spawnerActive = true;
             }
         }
 
@@ -56,6 +68,8 @@ public class GameManager : MonoBehaviour {
 
 
     public void UpdatePrices() {
+        moneyText.text = "Funds: $" + money;
+
         for (int i = 0; i < turretBases.Count; i++) {
             if (!turretBases[i].turretPlaced) {
                 // set buy price
@@ -70,24 +84,33 @@ public class GameManager : MonoBehaviour {
 
 
     public void OnEnemyKill(int s, int m) {
+        if (gameClear || gameOver) return;
+
         score += s;
         // update score text UI
+        scoreText.text = "Score: " + score;
         money += m;
         // update money text UI
+        moneyText.text = "Funds: $" + money;
+
     }
 
 
     public void GameClear() {
         if (gameClear || gameOver) return;
 
+        gameClearText.SetActive(true);
+        gameClear = true;
         Debug.Log("Game Clear");
     }
 
 
     public void GameOver() {
-        if (gameOver) return;
+        if (gameClear || gameOver) return;
 
+        gameOverText.SetActive(true);
         gameOver = true;
+        Instantiate(explosionPrefab);
         Debug.Log("Game Over");
     }
 }

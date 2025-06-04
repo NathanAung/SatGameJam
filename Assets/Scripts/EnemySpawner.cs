@@ -12,7 +12,7 @@ public class EnemySpawner : MonoBehaviour {
     [SerializeField] private float[] spawnTimes;
     private float spawnTime = 2f;
     private float spawnTimer = 0f;
-    private float difficultyTime = 10f;
+    private float difficultyTime = 30f;
     private float difficultyTimer = 0f;
     public bool spawnerActive = false;
 
@@ -44,7 +44,7 @@ public class EnemySpawner : MonoBehaviour {
 
             modelTransform.Rotate(0, 0.1f, 0, Space.Self);
         }
-        else if (difficulty > maxDifficulty && enemyParent.transform.childCount == 0) {
+        else if (difficulty > maxDifficulty && enemyParent.transform.childCount == 0 && !gameManager.gameOver) {
             gameManager.GameClear();
             DestroySpawner();
         }
@@ -52,7 +52,26 @@ public class EnemySpawner : MonoBehaviour {
 
 
     private void SpawnEnemy() {
-        int enemyNo = Random.Range(0, difficulty + 1);
+        int enemyNo = 0;
+        switch (difficulty) {
+            case 1:
+                enemyNo = Random.Range(0, 2);
+                break;
+            case 2:
+                if (Random.Range(0, 6) == 0)
+                    enemyNo = 2;
+                else
+                    enemyNo = Random.Range(0, 2);
+                break;
+            case 3:
+                if (Random.Range(0, 10) == 0)
+                    enemyNo = 3;
+                else if (Random.Range(0, 6) == 0)
+                    enemyNo = 2;
+                else
+                    enemyNo = Random.Range(0, 2);
+                break;
+        }
         GameObject e = Instantiate(enemyPrefabs[enemyNo], transform.position, Quaternion.identity, enemyParent.transform);
         e.GetComponent<Enemy>().gameManager = gameManager;
     }

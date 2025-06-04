@@ -52,7 +52,10 @@ MonoBehaviour:
   enemyActive: 0
   hp: 2
   speed: 3.5
+  score: 10
+  money: 1
   destinationPos: {x: 0, y: 0, z: 0}
+  gameManager: {fileID: 0}
 --- !u!33 &6459386160651492392
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -116,7 +119,7 @@ CapsuleCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -150,9 +153,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 80
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!195 &7562541932665886343
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -162,7 +165,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 7817709470512825646}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 1
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -173,5 +176,5 @@ NavMeshAgent:
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 1
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_WalkableMask: 1
+  m_ObstacleAvoidanceType: 0

@@ -11,7 +11,7 @@ public class Turret : MonoBehaviour {
     public float attackTime = 1f;
     [SerializeField] GameObject target;
     private Transform targetPos;
-    private Vector3 lookAtPos;
+    private Vector3 lookAtPos = new Vector3(21f, 2f, -12f);
     [SerializeField] Transform baseT;
     [SerializeField] Transform barrelT;
     private float rotationSpeed = 15f;
@@ -71,7 +71,7 @@ public class Turret : MonoBehaviour {
 
 
     private void Attack() {
-        Debug.Log("Attacking");
+        //Debug.Log("Attacking");
         currentEnemy.GetComponent<Enemy>().ReceiveDamage(damage);
         muzzleEffect.Play();
     }
@@ -82,7 +82,7 @@ public class Turret : MonoBehaviour {
         if (enemies.Count > 0) {
             currentEnemy = enemies[0];
             targetPos = currentEnemy.transform;
-            Debug.Log("Changed targets");
+            //Debug.Log("Changed targets");
         }
         else {
             currentEnemy = null;
@@ -99,7 +99,7 @@ public class Turret : MonoBehaviour {
                 currentEnemy = other.gameObject;
                 targetPos = currentEnemy.transform;
             }
-            Debug.Log("Enemy entered");
+            //Debug.Log("Enemy entered");
         }
     }
 
@@ -107,7 +107,7 @@ public class Turret : MonoBehaviour {
     void OnTriggerExit(Collider other) {
         if (other.gameObject.tag == "Enemy") {
             enemies.Remove(other.gameObject);
-            Debug.Log("Enemy exited");
+            //Debug.Log("Enemy exited");
             if (currentEnemy == other.gameObject) {
                 NextTarget();
             }
