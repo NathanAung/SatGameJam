@@ -6,12 +6,15 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour {
     public bool enemyActive = false;
-    public int hp = 1;
+    [SerializeField] int hp = 1;
     [SerializeField] private float speed = 3.5f;
+    [SerializeField] private int score = 10;
+    [SerializeField] private int money = 1;
     private float baseDistance;
     private float baseReachDist = 4f;
     NavMeshAgent agent;
     [SerializeField] Vector3 destinationPos;
+    public GameManager gameManager;
 
 
     // Start is called before the first frame update
@@ -34,6 +37,7 @@ public class Enemy : MonoBehaviour {
         baseDistance = Vector3.Distance(transform.position, destinationPos);
         if (baseDistance <= baseReachDist) {
             Debug.Log("Base reached");
+            gameManager.GameOver();
             Destroy(this.gameObject);
         }
     }
@@ -41,6 +45,7 @@ public class Enemy : MonoBehaviour {
     public void ReceiveDamage(int dmg) {
         hp -= dmg;
         if (hp <= 0) {
+            gameManager.OnEnemyKill(score, money);
             Destroy(this.gameObject);
         }
     }

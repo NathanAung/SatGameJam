@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyActive: 0
-  hp: 1
+  hp: 2
   speed: 3.5
   destinationPos: {x: 0, y: 0, z: 0}
 --- !u!33 &6459386160651492392
@@ -145,7 +145,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
