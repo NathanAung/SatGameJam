@@ -4,8 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour
-{
+public class Enemy : MonoBehaviour {
     public bool enemyActive = false;
     public int hp = 1;
     [SerializeField] private float speed = 3.5f;
@@ -16,11 +15,10 @@ public class Enemy : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         agent = GetComponent<NavMeshAgent>();
         agent.speed = speed;
-        
+
         destinationPos = Base.basePos;
 
         agent.SetDestination(destinationPos);
@@ -30,14 +28,19 @@ public class Enemy : MonoBehaviour
 
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         if (!enemyActive) return;
 
         baseDistance = Vector3.Distance(transform.position, destinationPos);
-        if (baseDistance <= baseReachDist)
-        {
+        if (baseDistance <= baseReachDist) {
             Debug.Log("Base reached");
+            Destroy(this.gameObject);
+        }
+    }
+
+    public void ReceiveDamage(int dmg) {
+        hp -= dmg;
+        if (hp <= 0) {
             Destroy(this.gameObject);
         }
     }

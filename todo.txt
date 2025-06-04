@@ -1,1 +1,6 @@
-- handle turretenemy enters and exits through a list and OnTriggerEnter/Exit
+- handle turret enemy enters and exits through a list and OnTriggerEnter/Exit
+- turret damage enemy
+- enemy spawning
+- placing turrets
+- money
+- buying turrets
