@@ -44,6 +44,10 @@ public class TurretBase : MonoBehaviour {
             turret.attackTime = turretCDs[turretLevel];
             turret.UpdateBody(turretLevel);
             Debug.Log("Upgraded");
+
+            if (turretLevel >= 3) {
+                priceText.text = "";  
+            }
         }
 
         gameManager.money -= price;
