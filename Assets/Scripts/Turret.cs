@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Turret : MonoBehaviour {
-    private int damage = 1;
+    [SerializeField] private ParticleSystem muzzleEffect;
+    [SerializeField] private Material[] levelMaterials;
+    [SerializeField] private MeshRenderer bodyMesh;
+    public int damage = 1;
     private float attackTimer = 1f;
-    private float attackTime = 1f;
+    public float attackTime = 1f;
     [SerializeField] GameObject target;
     private Transform targetPos;
     private Vector3 lookAtPos;
@@ -70,6 +73,7 @@ public class Turret : MonoBehaviour {
     private void Attack() {
         Debug.Log("Attacking");
         currentEnemy.GetComponent<Enemy>().ReceiveDamage(damage);
+        muzzleEffect.Play();
     }
 
 
@@ -83,7 +87,7 @@ public class Turret : MonoBehaviour {
         else {
             currentEnemy = null;
             targetPos = null;
-            Debug.Log("No targets");
+            //Debug.Log("No targets");
         }
     }
 
@@ -108,5 +112,9 @@ public class Turret : MonoBehaviour {
                 NextTarget();
             }
         }
+    }
+
+    public void UpdateBody(int lvl) {
+        bodyMesh.material = levelMaterials[lvl];
     }
 }
