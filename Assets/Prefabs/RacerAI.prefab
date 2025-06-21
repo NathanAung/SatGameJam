@@ -10,11 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 3092758100682577871}
   - component: {fileID: 1784484860506039804}
+  - component: {fileID: 8805513141494667442}
   - component: {fileID: 6837190600512154460}
   - component: {fileID: 5436845908476083099}
   m_Layer: 0
   m_Name: RacerAI
-  m_TagString: Untagged
+  m_TagString: Racer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47,9 +48,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b3c0b3eacca6546b35d380edfce4a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  turnSpeed: 5
+  speed: 60
+  turnSpeed: 20
   waypointManager: {fileID: 0}
+--- !u!114 &8805513141494667442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1177386703472155043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 139e3eef69fe69f4abcb7bc32dbb39a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lapsPassed: 0
 --- !u!54 &6837190600512154460
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -75,7 +89,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 1
-  m_Constraints: 0
+  m_Constraints: 4
   m_CollisionDetection: 0
 --- !u!135 &5436845908476083099
 SphereCollider:
