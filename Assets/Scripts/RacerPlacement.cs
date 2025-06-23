@@ -4,16 +4,35 @@ using UnityEngine;
 
 public class RacerPlacement : MonoBehaviour
 {
-    public int lapsPassed = 0;
-    // Start is called before the first frame update
+    [SerializeField] bool player = false;
+    public int currentLap = 0;
+    public int maxLaps = 3;
+    private bool firstLap = true;
+    public int currentWaypoint = 0;
+    public float distanceToNext = 0f;
+    private WaypointManager waypointManager;
+    private List<Transform> waypoints;
+
     void Start()
     {
-        
+        waypointManager = FindObjectOfType<WaypointManager>();
+        waypoints = waypointManager.waypoints;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        Transform next = waypoints[currentWaypoint];
+        distanceToNext = Vector3.Distance(transform.position, next.position);
+    }
+
+    public void PassedWaypoint()
+    {
+        currentWaypoint++;
+
+        if (currentWaypoint >= waypoints.Count)
+        {
+            currentWaypoint = 0;
+            currentLap++;
+        }
     }
 }
