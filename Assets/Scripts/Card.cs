@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting.ReorderableList;
 using UnityEngine;
 
 public class Card : MonoBehaviour
@@ -9,13 +10,18 @@ public class Card : MonoBehaviour
     [SerializeField] SpriteRenderer cardIcon;
     [SerializeField] TextMeshPro cardText;
     GameObject cardBack;
+    public PlayerCards playerCards;
     public bool playerCard = true;
     public int cardType = 0;    // 0 -normal, 1 - bolt, 2 - mirror
     public int points = 1;
     public bool faceDown = true;
     public bool inHand = false;
     public Vector2 targetPos;
+    public bool moving = false;
     private float cardMoveSpeed = 20f;
+    public int posInList = 0;
+    public bool canSelect = false;
+    public bool selected = false;
 
 
     void Awake()
@@ -34,15 +40,27 @@ public class Card : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Vector2.Distance(transform.position, targetPos) > 0.001f)
+        if (moving)
         {
-            transform.position = Vector2.MoveTowards(transform.position, targetPos, cardMoveSpeed * Time.deltaTime);
-        }
-        else if ((playerCard || (!playerCard && inHand)) && faceDown)
-        {
-            cardBack.SetActive(false);
-        }
+            if (Vector2.Distance(transform.position, targetPos) > 0.001f)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, targetPos, cardMoveSpeed * Time.deltaTime);
+            }
+            else if ((playerCard || (!playerCard && inHand)) && faceDown)
+            {
+                cardBack.SetActive(false);
+                moving = false;
 
+                if(!inHand)
+                    canSelect = true;
+
+                if (selected)
+                {
+                    CardEffect();
+                    selected = false;
+                }
+            }
+        }
     }
 
     public void ShowHideCard(bool show)
@@ -73,5 +91,32 @@ public class Card : MonoBehaviour
         }
         cardIcon.sprite = cardSprites[cardNo];
         playerCard = player;
+    }
+
+
+    public void MoveCard(Vector2 MovePos, int posNo)
+    {
+        targetPos = MovePos;
+        posInList = posNo;
+        moving = true;
+    }
+
+
+    public void CardEffect()
+    {
+        if(cardType == 1)
+        {
+            Debug.Log("Bolt used");
+            playerCards.RemoveFromHand();
+        }
+        else if(cardType == 2)
+        {
+            Debug.Log("Mirror used");
+            playerCards.RemoveFromHand();
+        }
+        else
+        {
+            playerCards.NextTurn();
+        }
     }
 }
