@@ -21,13 +21,14 @@ public class Card : MonoBehaviour {
     public int posInList = 0;
     public bool canSelect = false;
     public bool selected = false;
+    public bool effectRemoved = false;
 
 
     void Awake() {
         cardBack = transform.GetChild(0).gameObject;
         cardIcon = transform.GetChild(2).GetComponent<SpriteRenderer>();
         cardText = transform.GetChild(4).GetComponent<TextMeshPro>();
-        ShowHideCard(true);
+        ShowHideCard(false);
     }
 
     // Start is called before the first frame update
@@ -49,7 +50,7 @@ public class Card : MonoBehaviour {
                     canSelect = true;
 
                 if (selected) {
-                    CardEffect();
+                    StartCoroutine(CardEffect());
                     selected = false;
                 }
             }
@@ -57,8 +58,8 @@ public class Card : MonoBehaviour {
     }
 
     public void ShowHideCard(bool show) {
-        cardBack.SetActive(show);
-        faceDown = show;
+        cardBack.SetActive(!show);
+        faceDown = !show;
     }
 
     public void SetUpCard(int cardNo, bool player) {
@@ -88,15 +89,22 @@ public class Card : MonoBehaviour {
     }
 
 
-    public void CardEffect() {
-        if (cardType == 1) {
-            Debug.Log("Bolt used");
-            playerCards.RemoveFromHand();
-            playerCards.RemoveEnemyCard();
-        }
-        else if (cardType == 2) {
-            Debug.Log("Mirror used");
-            playerCards.RemoveFromHand();
+    public IEnumerator CardEffect() {
+        Debug.Log(points);
+        if (!effectRemoved && cardType > 0) {
+            if (cardType == 1) {
+                Debug.Log("Bolt used");
+                yield return new WaitForSeconds(0.5f);
+                playerCards.RemoveFromHand();
+                playerCards.RemoveEnemyCard();
+            }
+            else if (cardType == 2) {
+                Debug.Log("Mirror used");
+                yield return new WaitForSeconds(0.5f);
+                playerCards.RemoveFromHand();
+                playerCards.SwapHand();
+            }
+            effectRemoved = true;
         }
         else {
             playerCards.NextTurn();
