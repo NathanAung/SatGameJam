@@ -1918,7 +1918,7 @@ MonoBehaviour:
     m_Bits: 64
   handPoints: 0
   canSelectCards: 1
-  opponentCards: {fileID: 0}
+  opponentCards: {fileID: 2053742826}
 --- !u!1 &2053742825
 GameObject:
   m_ObjectHideFlags: 0

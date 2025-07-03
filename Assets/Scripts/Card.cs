@@ -4,8 +4,7 @@ using TMPro;
 using Unity.VisualScripting.ReorderableList;
 using UnityEngine;
 
-public class Card : MonoBehaviour
-{
+public class Card : MonoBehaviour {
     [SerializeField] Sprite[] cardSprites;
     [SerializeField] SpriteRenderer cardIcon;
     [SerializeField] TextMeshPro cardText;
@@ -24,38 +23,32 @@ public class Card : MonoBehaviour
     public bool selected = false;
 
 
-    void Awake()
-    {
+    void Awake() {
         cardBack = transform.GetChild(0).gameObject;
         cardIcon = transform.GetChild(2).GetComponent<SpriteRenderer>();
         cardText = transform.GetChild(4).GetComponent<TextMeshPro>();
         ShowHideCard(true);
     }
+
     // Start is called before the first frame update
-    void Start()
-    {
-        
+    void Start() {
+
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if (moving)
-        {
-            if (Vector2.Distance(transform.position, targetPos) > 0.001f)
-            {
+    void Update() {
+        if (moving) {
+            if (Vector2.Distance(transform.position, targetPos) > 0.001f) {
                 transform.position = Vector2.MoveTowards(transform.position, targetPos, cardMoveSpeed * Time.deltaTime);
             }
-            else if ((playerCard || (!playerCard && inHand)) && faceDown)
-            {
+            else if ((playerCard || (!playerCard && inHand)) && faceDown) {
                 cardBack.SetActive(false);
                 moving = false;
 
-                if(!inHand)
+                if (!inHand)
                     canSelect = true;
 
-                if (selected)
-                {
+                if (selected) {
                     CardEffect();
                     selected = false;
                 }
@@ -63,29 +56,23 @@ public class Card : MonoBehaviour
         }
     }
 
-    public void ShowHideCard(bool show)
-    {
+    public void ShowHideCard(bool show) {
         cardBack.SetActive(show);
         faceDown = show;
     }
 
-    public void SetUpCard(int cardNo, bool player)
-    {
-        if (cardNo > 9)
-        {
-            if (cardNo == 10)
-            {
+    public void SetUpCard(int cardNo, bool player) {
+        if (cardNo > 9) {
+            if (cardNo == 10) {
                 cardType = 1;
                 cardText.text = "B";
             }
-            else
-            {
+            else {
                 cardType = 2;
                 cardText.text = "M";
             }
         }
-        else
-        {
+        else {
             cardText.text = (cardNo + 1).ToString();
             points = cardNo + 1;
         }
@@ -94,28 +81,24 @@ public class Card : MonoBehaviour
     }
 
 
-    public void MoveCard(Vector2 MovePos, int posNo)
-    {
+    public void MoveCard(Vector2 MovePos, int posNo) {
         targetPos = MovePos;
         posInList = posNo;
         moving = true;
     }
 
 
-    public void CardEffect()
-    {
-        if(cardType == 1)
-        {
+    public void CardEffect() {
+        if (cardType == 1) {
             Debug.Log("Bolt used");
             playerCards.RemoveFromHand();
+            playerCards.RemoveEnemyCard();
         }
-        else if(cardType == 2)
-        {
+        else if (cardType == 2) {
             Debug.Log("Mirror used");
             playerCards.RemoveFromHand();
         }
-        else
-        {
+        else {
             playerCards.NextTurn();
         }
     }
