@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Rod : MonoBehaviour {
     private Transform castPoint;
-    private GameObject hook;
+    public GameObject hook;
     private LineRenderer line;
     public bool casting = false;
     public bool casted = false;
@@ -52,6 +52,8 @@ public class Rod : MonoBehaviour {
     }
 
     public void Reel() {
+        if (reeling) return;
+
         castPos = castPoint.position;
         casting = false;
         casted = false;

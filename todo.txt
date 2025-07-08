@@ -1,0 +1,16 @@
+Fish Manager
+- when fish less than 5, spawn
+- when the line is cast, find the fish to the nearest of the hook and set it to lured
+
+Fish
+- states: swim, lured, caught, ran
+- every 3-5 sec, find a random position within a certain range and move there
+- when set by fish manager, move towards the hook, set to lured
+- when mini game completed, set to caught, enable actual fish model
+- when reeled too early or failed mini game, set to ran, run away and delete object
+- times of mini game depend on the size of the fish
+
+Rod
+- Cast the line to the area where the mouse is clicked
+- When a fish is hooked, the mini game will start
+- 
