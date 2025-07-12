@@ -23,7 +23,7 @@ public class CSVReader : MonoBehaviour {
         }
         DontDestroyOnLoad(this.gameObject);
 
-        ReadCSV(noteList, "NoteData");
+        noteList = ReadCSV("NoteData");
     }
 
 
@@ -31,10 +31,11 @@ public class CSVReader : MonoBehaviour {
     void Update() {
 
     }
-    
 
-    void ReadCSV(List<NoteData> selectedList, string path)
-    {
+
+    public List<NoteData> ReadCSV(string path) {
+        List<NoteData> notes = new List<NoteData>();
+        
         try {
             var csv = Resources.Load(path) as TextAsset;
 
@@ -46,7 +47,7 @@ public class CSVReader : MonoBehaviour {
                 string[] parts = line.Split(',');
 
                 if (float.TryParse(parts[0], out float time) && int.TryParse(parts[1], out int pos)) {
-                    selectedList.Add(new NoteData { time = time, pos = pos });
+                    notes.Add(new NoteData { time = time, pos = pos });
                 }
                 else {
                     Debug.Log("cannot parse data");
@@ -58,5 +59,7 @@ public class CSVReader : MonoBehaviour {
             Debug.LogError("ERROR: File not found");
         }
         ;
+
+        return notes;
     }
 }
