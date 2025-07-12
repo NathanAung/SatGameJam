@@ -1,0 +1,9 @@
+- rhythm game based on yakuza 0 mini game
+- notes appear on a grid, player moves to the note square and press the button at the right timing. The steps taken are added to the score.
+- the position and timing of the notes are saved in a csv file
+- a note data is something like time, position
+- when the game starts, the note data is read from the csv and stored in a list
+- in the update, by going through the note list and comparing the music's play time to the note's time, the notes are spawned, with a time offset of 2 seconds
+- A note has an outer square that will shrink to match the size of the square in 2 seconds. When the note is matched and the button is pressed, the player will get the score. It will miss and the combo will break otherwise.
+- When pressed consecutively, the player will enter a combo.
+- steps travelled will multiply the score of the note.
