@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,8 +13,7 @@ public class CSVReader : MonoBehaviour {
     public List<NoteData> noteList = new List<NoteData>();
 
 
-    // Start is called before the first frame update
-    void Start() {
+    void Awake() {
         // handling CSV reloading
         GameObject[] objs = GameObject.FindGameObjectsWithTag("CSV");
 
@@ -27,6 +27,12 @@ public class CSVReader : MonoBehaviour {
     }
 
 
+    // Start is called before the first frame update
+    void Start() {
+
+    }
+
+
     // Update is called once per frame
     void Update() {
 
@@ -35,7 +41,7 @@ public class CSVReader : MonoBehaviour {
 
     public List<NoteData> ReadCSV(string path) {
         List<NoteData> notes = new List<NoteData>();
-        
+
         try {
             var csv = Resources.Load(path) as TextAsset;
 
