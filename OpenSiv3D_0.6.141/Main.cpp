@@ -2,6 +2,9 @@
 
 void Main()
 {
+	// game title
+	Window::SetTitle(U"Basketball Game");
+
 	// Background color (sky blue)
 	Scene::SetBackground(ColorF{ 0.4, 0.7, 1.0 });
 
