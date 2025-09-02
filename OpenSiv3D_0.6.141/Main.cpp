@@ -157,6 +157,8 @@ void CreateEnemies(const double& deltaTime, const double& currentTime, double& g
 
 void Main()
 {
+	Window::SetTitle(U"Survival Game");
+
 	Scene::SetBackground(ColorF{ 0.2, 0.2, 0.2 });
 
 	GameState gameState = GameState::Playing;
