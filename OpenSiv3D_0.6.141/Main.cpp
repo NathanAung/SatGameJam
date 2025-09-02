@@ -1,216 +1,159 @@
-﻿# include <Siv3D.hpp> // Siv3D v0.6.14
-
-
-enum class GameState
-{
-	Playing,
-	GameOver
-};
-
-struct Player {
-	const Texture playerT{ U"👮"_emoji };
-	int hp = 5;
-	Circle collider{ 400, 300, 40 };
-	Vec2 currentPos{ 400, 300 };
-
-	void PlayerUpdate() {
-		collider.setPos(currentPos);
-		//collider.draw();
-		if (hp > 0)
-			playerT.scaled(0.5).drawAt(collider.center);
-	}
-};
-
-
-struct Enemy {
-	Circle collider{ 0, 0, 40 };
-	int enemyType = 0; // 0: ghost, 1: zombie, 2: vampire
-	int hp = 1;
-	Vec2 currentPos{ 0,0 };
-	Vec2 targetPos = currentPos;
-	Vec2 velocity{ 2,2 };
-	double speed = 1.5f;
-	int score = 10;
-
-	void SetUpEnemy() {
-		enemyType = Random(0, 2);
-
-		switch (enemyType) {
-		case 1:	// zombie
-			hp = 3;
-			speed = 1.0f;
-			score = 30;
-			break;
-		case 2:	// vampire
-			speed = 2.0f;
-			score = 20;
-			break;
-		}
-
-
-		int side = Random(0, 3); // 0: left, 1: right, 2: top, 3: bottom
-
-		if (side == 0) { // Left
-			currentPos.x = Random(-400, -1);
-			currentPos.y = Random(-400, 1000);
-		}
-		else if (side == 1) { // Right
-			currentPos.x = Random(801, 1200);
-			currentPos.y = Random(-400, 1000);
-		}
-		else if (side == 2) { // Top
-			currentPos.x = Random(-400, 1200);
-			currentPos.y = Random(-400, -1);
-		}
-		else { // Bottom
-			currentPos.x = Random(-400, 1200);
-			currentPos.y = Random(601, 1200);
-		}
-		collider.setPos(currentPos);
-	}
-
-	void EnemyUpdate(Vec2 pos, const Texture& texture) {
-		targetPos = pos;
-		currentPos = MoveTowards(currentPos, targetPos, speed);
-		collider.setPos(currentPos);
-		//collider.draw();
-		texture.scaled(0.5).drawAt(currentPos);
-	}
-
-	Vec2 MoveTowards(const Vec2& current, const Vec2& target, double speedDelta)
-	{
-		Vec2 delta = target - current;
-		double distance = delta.length();
-
-		if (distance <= speedDelta || distance == 0.0)
-		{
-			return target; // Already close enough or at the target
-		}
-
-		return current + delta / distance * speedDelta;
-	}
-};
-
-
-struct Crosshair {
-	const Texture crosshairT{ 0xF04FE_icon, 80 };
-	Circle collider{ Cursor::Pos(), 20 };
-
-	void Draw() {
-		collider.setPos(Cursor::Pos());
-		//collider.draw();
-		crosshairT.drawAt(collider.center, ColorF{ 1 });
-	}
-};
-
-
-void UpdateEnemies(const Array<Texture>& enemyTexArr, Array<Enemy>& enemies, Player& player, const Crosshair& crosshair, int& score) {
-	if (player.hp <= 0)
-		return; // Skip updates if the player is dead
-
-	for (int i = enemies.size() - 1; i >= 0; --i) {
-		Enemy& enemy = enemies[i];
-		enemy.EnemyUpdate(player.collider.center, enemyTexArr[enemy.enemyType]);
-
-		if (enemy.collider.intersects(player.collider)) {
-			player.hp = static_cast<int>(Math::Max(0, static_cast<double>(player.hp - 1)));
-			enemies.remove_at(i);
-			continue; // Skip further checks for this enemy
-		}
-		else if (enemy.collider.intersects(crosshair.collider) && MouseL.down()) {
-			enemy.hp -= 1;
-			if (enemy.hp <= 0) {
-				score += enemy.score;
-				enemies.remove_at(i);
-				// No need for continue here, as it's the last check
-			}
-		}
-	}
-
-	//for(auto e = enemies.begin(); e != enemies.end();) {
-	//	if(player.collider.intersects(e->collider)) {
-	//		player.hp = static_cast<int>(Math::Max(0, static_cast<double>(player.hp - 1)));
-	//		e = enemies.erase(e); // Remove enemy and get the next iterator
-	//	}
-	//	else {
-	//		++e; // Only increment if not erasing
-	//	}
-	//}
-}
-
-
-void CreateEnemies(const double& deltaTime, const double& currentTime, double& genTimer, Array<Enemy>& enemies, const GameState& state) {
-	if (state == GameState::GameOver)
-		return;
-
-	static double genTime = 0.5f;
-
-	genTimer += deltaTime;
-
-	if (genTimer >= genTime) {
-		enemies.emplace_back();           // Construct Enemy in place
-		enemies.back().SetUpEnemy();      // Set up the newly created Enemy
-		genTimer = 0.0;
-	}
-}
-
+﻿# include <Siv3D.hpp> // OpenSiv3D v0.6.3
 
 void Main()
 {
-	Window::SetTitle(U"Survival Game");
+	// Background color (sky blue)
+	Scene::SetBackground(ColorF{ 0.4, 0.7, 1.0 });
 
-	Scene::SetBackground(ColorF{ 0.2, 0.2, 0.2 });
+	// --- Physics setup ---
+	constexpr double StepSec = (1.0 / 200.0);  // Fixed timestep (stable simulation)
+	double accumulatorSec = 0.0;
+	P2World world;
 
-	GameState gameState = GameState::Playing;
+	// --- Ground setup ---
+	const P2Body ground = world.createRect(
+		P2Static, Vec2{ 100, 600 }, SizeF{ 1600, 200 },
+		P2Material{ .density = 20.0, .restitution = 0.02, .friction = 0.8 }
+	);
 
+	// --- Hoop setup ---
+	const Vec2 hoopPos{ 700, 200 };
+	const SizeF rimSize{ 100, 10 };
+	const SizeF backboardSize{ 10, 100 };
+
+	// Backboard is positioned relative to hoop
+	const P2Body backboard = world.createRect(
+		P2Static,
+		hoopPos + Vec2{ rimSize.x / 2 - backboardSize.x, -backboardSize.y / 2 + rimSize.y / 2 },
+		backboardSize,
+		P2Material{}
+	);
+
+	// --- Scoring zone (detect if ball passes through rim) ---
+	RectF scoreZone{ hoopPos.x - 65, hoopPos.y - 15, rimSize.x, 20 };
+	int32 score = 0;
+
+	// --- Ball setup ---
+	Array<P2Body> balls;
+	constexpr double BallRadius = 20;
+	constexpr Circle StartCircle{ 200, 300, BallRadius }; // where you grab/launch the ball
+	Optional<Vec2> grabbed; // grab position
+	constexpr Duration CoolTime = 0.3s; // cooldown between shots
+	Stopwatch timeSinceShot{ CoolTime, StartImmediately::Yes };
+
+	// --- UI setup ---
 	const Font font{ FontMethod::MSDF, 48, Typeface::Bold };
-
-	const Array<Texture> enemyTexArr =
-	{
-		Texture{ U"👻"_emoji },
-		Texture{ U"🧟"_emoji },
-		Texture{ U"🧛‍♀️"_emoji }
-	};
-
-	Player player;
-	Array<Enemy> enemies;
-	Crosshair crosshair;
-
-	int score = 0;
-
-	double time = 0.0;
-	double genTimer = 0.0;
-
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	enemies.emplace_back();           // Construct Enemy in place
-	//	enemies.back().SetUpEnemy();      // Set up the newly created Enemy
-	//}
-
+	const Texture ballT{ U"🏀"_emoji }; // ball texture (emoji)
+	const double BallTexSize = BallRadius * 2; // texture scale to match physics radius
 
 	while (System::Update())
 	{
-		const double deltaTime = Scene::DeltaTime();
-		time += deltaTime;
+		const bool readyToLaunch = (CoolTime <= timeSinceShot);
 
-		// hide cursor
-		Cursor::RequestStyle(CursorStyle::Hidden);
-
-		UpdateEnemies(enemyTexArr, enemies, player, crosshair, score);
-		CreateEnemies(deltaTime, time, genTimer, enemies, gameState);
-
-		player.PlayerUpdate();
-
-		crosshair.Draw();
-
-		font(U"HP: {}"_fmt(player.hp)).draw(32, Vec2{ 20, 20 }, ColorF{ 1 });
-		font(U"Score: {}"_fmt(score)).draw(32, Vec2{ 20, 70 }, ColorF{ 1 });
-
-		if (player.hp <= 0)
+		// --- Physics update with fixed timestep ---
+		for (accumulatorSec += Scene::DeltaTime(); StepSec <= accumulatorSec; accumulatorSec -= StepSec)
 		{
-			font(U"GAME OVER").drawAt(64, Vec2{ 400, 300 }, ColorF{ 0.7, 0.0, 0.0 });
-			if (gameState == GameState::Playing)
-				gameState = GameState::GameOver;
+			world.update(StepSec);
 		}
+
+		// Remove balls that fall below screen
+		balls.remove_if([](const P2Body& b) { return (700 < b.getPos().y); });
+
+		// --- Ball grab / launch logic ---
+		if (readyToLaunch && StartCircle.leftClicked())
+		{
+			grabbed = Cursor::PosF();
+		}
+
+		Vec2 ballPos = StartCircle.center; // default spawn position
+		Vec2 ballDelta{ 0,0 };             // launch vector
+
+		// While dragging the mouse, calculate launch vector
+		if (grabbed)
+		{
+			ballDelta = (*grabbed - Cursor::PosF()).limitLength(110);
+			ballPos -= ballDelta;
+		}
+
+		// Release mouse → launch ball
+		if (grabbed && MouseL.up())
+		{
+			P2Body newBall = world.createCircle(
+				P2Dynamic, ballPos, BallRadius,
+				P2Material{ .density = 100.0, .restitution = 0.0, .friction = 1.0 }
+			).setVelocity(ballDelta * 8);
+
+			balls << newBall;
+			grabbed.reset();
+			timeSinceShot.restart();
+		}
+
+		// --- Scoring check ---
+		for (auto& ball : balls)
+		{
+			if (scoreZone.intersects(ball.getPos()))
+			{
+				score++;
+				ball.setAwake(false);               // stop physics
+				ball.setPos(Vec2{ 9999, 9999 });    // move out of view
+			}
+		}
+
+		// --- Drawing section ---
+
+		// Ground
+		const Quad groundQuad = ground.as<P2Rect>(0)->getQuad();
+		const RectF groundRect{ groundQuad.p0, (groundQuad.p2 - groundQuad.p0) };
+		groundRect.draw(ColorF{ 0.4, 0.2, 0.0 }) // brown dirt
+			.drawFrame(40, 0, ColorF{ 0.2, 0.8, 0.4 }); // green grass
+
+		// Hoop backboard + score zone
+		backboard.as<P2Rect>(0)->getQuad().draw(ColorF{ 0.8 });
+		scoreZone.drawFrame(2, 0, ColorF{ 0.0, 1.0, 0.0, 0.5 });
+
+		// Balls already launched
+		for (const auto& ball : balls)
+		{
+			ballT.resized(BallTexSize).drawAt(ball.getPos());
+		}
+
+		// Cursor style feedback
+		if (readyToLaunch && (grabbed || StartCircle.mouseOver()))
+		{
+			Cursor::RequestStyle(CursorStyle::Hand);
+		}
+
+		// Start circle (spawn point)
+		StartCircle.drawFrame(2);
+
+		// Preview ball while dragging
+		if (readyToLaunch)
+		{
+			Circle{ ballPos, BallRadius }.draw();
+			ballT.resized(BallTexSize).drawAt(ballPos);
+		}
+
+		// Draw arrow for launch strength
+		if (20.0 < ballDelta.length())
+		{
+			Line{ ballPos, (ballPos + ballDelta) }
+				.stretched(-10)
+				.drawArrow(10, { 20, 20 }, ColorF{ 1.0, 0.0, 0.0, 0.5 });
+		}
+
+		// Predicted trajectory preview
+		if (not ballDelta.isZero())
+		{
+			const Vec2 v0 = (ballDelta * 8);
+			for (int32 i = 1; i <= 10; ++i)
+			{
+				const double t = (i * 0.15);
+				const Vec2 pos = ballPos + (v0 * t) + (0.5 * world.getGravity() * t * t);
+				Circle{ pos, 6 }.draw(ColorF{ 1.0, 0.6 }).drawFrame(3);
+			}
+		}
+
+		// Score text
+		font(U"Score: {}"_fmt(score)).draw(32, 10, 10, ColorF{ 1.0 });
 	}
 }
