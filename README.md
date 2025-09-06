@@ -11,3 +11,5 @@
 <a href="https://nathan-ag.itch.io/shooting-game">シューティング</a><br>
 <a href="https://nathan-ag.itch.io/run-game">ランゲーム</a><br>
 <a href="https://nathan-ag.itch.io/escape-room-game">脱出</a><br>
+<a href="https://nathan-ag.itch.io/survival-game">サバイバル</a><br>
+<a href="https://nathan-ag.itch.io/basketball">バスケットボール</a><br>
